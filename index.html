@@ -45,14 +45,39 @@
         .nav-btn {
             background-color: rgba(255, 255, 255, 0.95);
             border-radius: 9999px;
-            padding: 1.25rem;
+            padding: 1rem;
             box-shadow: 0 8px 15px rgba(0,0,0,0.2);
             transition: all 0.2s;
-            border: 4px solid #FF922B;
+            border: 3px solid #FF922B;
+        }
+        @media (min-width: 640px) {
+            .nav-btn { padding: 1.25rem; border-width: 4px; }
         }
         .nav-btn:hover {
             transform: scale(1.15);
             background-color: #ffffff;
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 500px;
+            width: 100%;
+        }
+        .search-input {
+            width: 100%;
+            padding: 10px 15px 10px 45px;
+            border-radius: 9999px;
+            border: 3px solid #FDE047;
+            outline: none;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        @media (min-width: 640px) {
+            .search-input { padding: 12px 20px 12px 50px; border-width: 4px; font-size: 1.1rem; }
+        }
+        .search-input:focus {
+            border-color: #FF922B;
+            box-shadow: 0 0 15px rgba(255, 146, 43, 0.2);
         }
     </style>
 </head>
@@ -65,80 +90,85 @@
 
     <!-- ส่วนหัว -->
     <header class="bg-white border-b-4 border-yellow-400 p-4 sticky top-0 z-50 shadow-sm">
-        <div class="max-w-7xl mx-auto flex flex-col items-center gap-2">
-            <h1 class="text-3xl sm:text-4xl font-bold text-orange-kid flex items-center gap-3 cursor-pointer" onclick="goHome()">
-                <span class="text-4xl sm:text-5xl floating">🌟</span>
+        <div class="max-w-7xl mx-auto flex flex-col items-center gap-3 sm:gap-4">
+            <h1 class="text-2xl sm:text-4xl font-bold text-orange-kid flex items-center gap-2 sm:gap-3 cursor-pointer" onclick="goHome()">
+                <span class="text-3xl sm:text-5xl floating">🌟</span>
                 ดินแดนการ์ตูนหรรษา
-                <span class="text-4xl sm:text-5xl floating" style="animation-delay: 0.5s;">🧸</span>
+                <span class="text-3xl sm:text-5xl floating" style="animation-delay: 0.5s;">🧸</span>
             </h1>
-            <p class="text-gray-500 text-sm sm:text-base font-medium">ดูการ์ตูนต่อเนื่อง แถวละ 4 คลิปจุใจ!</p>
+            
+            <!-- ช่องค้นหา -->
+            <div class="search-container">
+                <i data-lucide="search" class="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-orange-400 w-5 h-5 sm:w-6 sm:h-6"></i>
+                <input type="text" id="search-input" placeholder="ค้นหาการ์ตูนที่หนูชอบ..." class="search-input" oninput="handleSearch()">
+            </div>
         </div>
     </header>
 
     <!-- คอนเทนต์หลัก -->
-    <main class="max-w-7xl mx-auto px-4 pt-6">
+    <main class="max-w-7xl mx-auto px-2 sm:px-4 pt-4 sm:pt-6">
         
         <!-- หมวดหมู่ -->
-        <div id="category-bar" class="flex overflow-x-auto gap-3 py-4 hide-scrollbar justify-center mb-4">
+        <div id="category-bar" class="flex overflow-x-auto gap-2 sm:gap-3 py-2 sm:py-4 hide-scrollbar justify-start sm:justify-center mb-2 sm:mb-4">
             <!-- สร้างด้วย JS -->
         </div>
 
-        <!-- รายการวิดีโอ (4 คลิปต่อแถว) -->
-        <div id="video-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
+        <!-- รายการวิดีโอ (2 คอลัมน์บนมือถือ, 4 คอลัมน์บนหน้าจอใหญ่) -->
+        <div id="video-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-6 mt-2 sm:mt-4">
             <!-- สร้างด้วย JS -->
         </div>
 
         <div id="loader" class="flex flex-col items-center justify-center py-20 text-orange-kid">
-            <div class="w-16 h-16 border-8 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
-            <p class="mt-4 font-bold text-xl">กำลังหาการ์ตูนสนุกๆ มาให้หนูนะ...</p>
+            <div class="w-12 h-12 sm:w-16 sm:h-16 border-4 sm:border-8 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
+            <p class="mt-4 font-bold text-lg sm:text-xl">กำลังหาการ์ตูนสนุกๆ มาให้หนูนะ...</p>
         </div>
     </main>
 
     <!-- เมนูด้านล่าง -->
-    <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-white border-4 border-yellow-400 rounded-full shadow-2xl z-50 flex justify-around p-2">
-        <button onclick="goHome()" class="flex flex-col items-center p-2 text-orange-kid hover:bg-yellow-50 rounded-full transition-all">
-            <i data-lucide="home" class="w-8 h-8"></i>
-            <span class="text-xs font-bold">บ้านของหนู</span>
+    <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[95%] max-w-md bg-white border-4 border-yellow-400 rounded-full shadow-2xl z-50 flex justify-around p-1 sm:p-2">
+        <button onclick="goHome()" class="flex flex-col items-center p-2 text-orange-kid hover:bg-yellow-50 rounded-full transition-all flex-1">
+            <i data-lucide="home" class="w-6 h-6 sm:w-8 sm:h-8"></i>
+            <span class="text-[10px] sm:text-xs font-bold">บ้านของหนู</span>
         </button>
-        <button onclick="openFavs()" class="flex flex-col items-center p-2 text-pink-500 hover:bg-pink-50 rounded-full transition-all">
-            <i data-lucide="heart" class="w-8 h-8"></i>
-            <span class="text-xs font-bold">ที่หนูชอบ</span>
+        <button onclick="openFavs()" class="flex flex-col items-center p-2 text-pink-500 hover:bg-pink-50 rounded-full transition-all flex-1">
+            <i data-lucide="heart" class="w-6 h-6 sm:w-8 sm:h-8"></i>
+            <span class="text-[10px] sm:text-xs font-bold">ที่หนูชอบ</span>
         </button>
-        <button onclick="window.location.reload()" class="flex flex-col items-center p-2 text-blue-500 hover:bg-blue-50 rounded-full transition-all">
-            <i data-lucide="refresh-cw" class="w-8 h-8"></i>
-            <span class="text-xs font-bold">ดูใหม่</span>
+        <button onclick="window.location.reload()" class="flex flex-col items-center p-2 text-blue-500 hover:bg-blue-50 rounded-full transition-all flex-1">
+            <i data-lucide="refresh-cw" class="w-6 h-6 sm:w-8 sm:h-8"></i>
+            <span class="text-[10px] sm:text-xs font-bold">ดูใหม่</span>
         </button>
     </nav>
 
     <!-- Modal เครื่องเล่นการ์ตูน -->
-    <div id="video-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-2 sm:p-4">
+    <div id="video-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-1 sm:p-4">
         <div class="absolute inset-0 bg-black/85 backdrop-blur-md" onclick="closeModal()"></div>
-        <div class="relative bg-white border-[8px] sm:border-[12px] border-yellow-400 rounded-[2.5rem] sm:rounded-[3.5rem] overflow-hidden w-full max-w-5xl shadow-2xl">
+        <div class="relative bg-white border-[6px] sm:border-[12px] border-yellow-400 rounded-[2rem] sm:rounded-[3.5rem] overflow-hidden w-full max-w-5xl shadow-2xl">
             
-            <button onclick="closeModal()" class="absolute top-3 right-3 bg-red-500 text-white rounded-full p-2 sm:p-4 z-[110] shadow-lg hover:scale-110 active:scale-95 transition-transform border-4 border-white">
-                <i data-lucide="x" class="w-6 h-6 sm:w-8 sm:h-8"></i>
+            <button onclick="closeModal()" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 sm:p-4 z-[110] shadow-lg hover:scale-110 active:scale-95 transition-transform border-2 sm:border-4 border-white">
+                <i data-lucide="x" class="w-5 h-5 sm:w-8 sm:h-8"></i>
             </button>
             
             <div class="relative aspect-video bg-black flex items-center justify-center">
                 <div id="player-container" class="w-full h-full"></div>
                 
-                <div class="absolute inset-y-0 left-0 flex items-center pl-2 sm:pl-6 pointer-events-none">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-1 sm:pl-6 pointer-events-none">
                     <button id="prev-btn" onclick="playPrev()" class="nav-btn text-orange-kid pointer-events-auto">
-                        <i data-lucide="chevron-left" class="w-8 h-8 sm:w-12 sm:h-12 stroke-[3px]"></i>
+                        <i data-lucide="chevron-left" class="w-6 h-6 sm:w-12 sm:h-12 stroke-[3px]"></i>
                     </button>
                 </div>
-                <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:pr-6 pointer-events-none">
+                <div class="absolute inset-y-0 right-0 flex items-center pr-1 sm:pr-6 pointer-events-none">
                     <button id="next-btn" onclick="playNext()" class="nav-btn text-orange-kid pointer-events-auto">
-                        <i data-lucide="chevron-right" class="w-8 h-8 sm:w-12 sm:h-12 stroke-[3px]"></i>
+                        <i data-lucide="chevron-right" class="w-6 h-6 sm:w-12 sm:h-12 stroke-[3px]"></i>
                     </button>
                 </div>
             </div>
             
             <div class="p-4 sm:p-8 bg-white text-center">
-                <h2 id="modal-title" class="text-xl sm:text-3xl font-bold text-orange-kid mb-4 line-clamp-1 px-12">ชื่อการ์ตูน</h2>
+                <h2 id="modal-title" class="text-lg sm:text-3xl font-bold text-orange-kid mb-2 sm:mb-4 line-clamp-1 px-8 sm:px-12">ชื่อการ์ตูน</h2>
                 <div class="flex justify-center">
-                    <button id="modal-fav-btn" onclick="toggleFavoriteCurrent()" class="kid-button bg-pink-400 text-white px-10 py-3 rounded-full font-bold flex items-center gap-3 text-lg transition-all">
-                        <i data-lucide="heart" class="w-7 h-7"></i>
+                    <button id="modal-fav-btn" onclick="toggleFavoriteCurrent()" class="kid-button bg-pink-400 text-white px-6 sm:px-10 py-2 sm:py-3 rounded-full font-bold flex items-center gap-2 sm:gap-3 text-sm sm:text-lg transition-all">
+                        <i data-lucide="heart" class="w-5 h-5 sm:w-7 sm:h-7"></i>
                         <span>เก็บไว้ดูอีกนะ</span>
                     </button>
                 </div>
@@ -157,18 +187,17 @@
         let favorites = JSON.parse(localStorage.getItem('kiddo_favs') || '[]');
         let currentVideo = null;
         let player = null;
+        let currentCategory = 'ทั้งหมด';
+        let searchQuery = '';
 
         lucide.createIcons();
 
-        // ฟังก์ชันดึง ID จาก URL ที่รองรับได้หลากหลายขึ้น
         function extractID(url) {
             if (!url) return null;
-            // รองรับทั้ง youtu.be/ID และ youtube.com/watch?v=ID
             const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/|.*embed\/))([^?&"'>\s]+)/);
             return (match && match[1].length === 11) ? match[1] : null;
         }
 
-        // ฟังก์ชันแยก CSV ที่รองรับเครื่องหมายคำพูดและตัวอักษรพิเศษ
         function parseCSVLine(line) {
             const result = [];
             let current = '';
@@ -194,9 +223,8 @@
                 if (!response.ok) throw new Error('Fetch failed');
                 const data = await response.text();
                 
-                // แยกบรรทัดและลบช่องว่างส่วนเกิน
                 const rows = data.split(/\r?\n/).filter(row => row.trim() !== "");
-                const dataRows = rows.slice(1); // ข้ามหัวตาราง
+                const dataRows = rows.slice(1);
 
                 allVideos = dataRows.map((row, index) => {
                     const cols = parseCSVLine(row);
@@ -221,7 +249,7 @@
                 }
 
                 renderCategories();
-                renderVideos('ทั้งหมด');
+                applyFilters();
             } catch (error) {
                 console.error("Error:", error);
                 document.getElementById('loader').innerHTML = `<p class="text-red-500 font-bold">แง! โหลดข้อมูลไม่ได้ ลองตรวจสอบการ Publish CSV นะจ๊ะ</p>`;
@@ -232,33 +260,66 @@
             const cats = ['ทั้งหมด', ...new Set(allVideos.map(v => v.category))];
             const bar = document.getElementById('category-bar');
             bar.innerHTML = cats.map(cat => `
-                <button onclick="renderVideos('${cat}')" 
-                        class="kid-button bg-white text-orange-kid border-4 border-yellow-300 px-6 py-2 rounded-full font-bold whitespace-nowrap hover:bg-yellow-100 transition-colors">
+                <button onclick="setCategory('${cat}')" 
+                        class="category-btn kid-button ${currentCategory === cat ? 'bg-orange-400 text-white' : 'bg-white text-orange-kid'} border-2 sm:border-4 border-yellow-300 px-4 sm:px-6 py-1 sm:py-2 rounded-full font-bold whitespace-nowrap text-sm sm:text-base hover:bg-yellow-100 transition-colors">
                     ${cat}
                 </button>
             `).join('');
         }
 
-        function renderVideos(category) {
-            const grid = document.getElementById('video-grid');
-            const filtered = category === 'ทั้งหมด' ? allVideos : allVideos.filter(v => v.category === category);
-            
-            currentPlaylist = filtered;
+        function setCategory(cat) {
+            currentCategory = cat;
+            renderCategories();
+            applyFilters();
+        }
 
-            grid.innerHTML = filtered.map((v, idx) => `
+        function handleSearch() {
+            searchQuery = document.getElementById('search-input').value.toLowerCase();
+            applyFilters();
+        }
+
+        function applyFilters() {
+            let filtered = allVideos;
+            
+            if (currentCategory !== 'ทั้งหมด' && currentCategory !== 'รายการโปรด') {
+                filtered = filtered.filter(v => v.category === currentCategory);
+            } else if (currentCategory === 'รายการโปรด') {
+                filtered = allVideos.filter(v => favorites.includes(v.id));
+            }
+            
+            if (searchQuery) {
+                filtered = filtered.filter(v => 
+                    v.title.toLowerCase().includes(searchQuery) || 
+                    v.category.toLowerCase().includes(searchQuery)
+                );
+            }
+            
+            renderGrid(filtered);
+        }
+
+        function renderGrid(list) {
+            const grid = document.getElementById('video-grid');
+            currentPlaylist = list;
+
+            if (list.length === 0) {
+                grid.innerHTML = '<div class="col-span-full py-20 text-center text-gray-400 font-bold text-lg sm:text-xl">ไม่พบการ์ตูนที่หนูหาเลยจ๊ะ ลองหาคำอื่นดูนะ! 🧸</div>';
+                return;
+            }
+
+            grid.innerHTML = list.map((v, idx) => `
                 <div class="card-pop cursor-pointer h-full" onclick="playVideoAtIndex(${idx})">
-                    <div class="bg-white border-[6px] border-white rounded-[2.5rem] overflow-hidden shadow-xl h-full flex flex-col transition-all hover:shadow-2xl">
+                    <div class="bg-white border-[4px] sm:border-[6px] border-white rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden shadow-lg sm:shadow-xl h-full flex flex-col transition-all hover:shadow-2xl">
                         <div class="relative aspect-video bg-gray-100">
                             <img src="${v.thumbnail}" class="w-full h-full object-cover" loading="lazy" onerror="this.src='https://placehold.co/400x225?text=No+Preview'">
-                            <div class="absolute inset-0 flex items-center justify-center bg-black/5 opacity-0 hover:opacity-100 transition-opacity">
-                                <div class="bg-white/90 rounded-full p-4 shadow-lg">
-                                    <i data-lucide="play" class="w-8 h-8 text-orange-kid fill-current"></i>
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/5 sm:opacity-0 sm:hover:opacity-100 transition-opacity">
+                                <div class="bg-white/90 rounded-full p-2 sm:p-4 shadow-lg">
+                                    <i data-lucide="play" class="w-5 h-5 sm:w-8 sm:h-8 text-orange-kid fill-current"></i>
                                 </div>
                             </div>
                         </div>
-                        <div class="p-5 text-center flex-grow flex flex-col justify-between">
-                            <h3 class="font-bold text-lg text-gray-700 line-clamp-2 mb-2 leading-tight">${v.title}</h3>
-                            <span class="inline-block px-4 py-1 bg-yellow-100 text-orange-600 rounded-full text-xs font-bold self-center">${v.category}</span>
+                        <div class="p-2 sm:p-5 text-center flex-grow flex flex-col justify-between">
+                            <h3 class="font-bold text-xs sm:text-lg text-gray-700 line-clamp-2 mb-1 sm:mb-2 leading-tight">${v.title}</h3>
+                            <span class="inline-block px-2 sm:px-4 py-0.5 sm:py-1 bg-yellow-100 text-orange-600 rounded-full text-[10px] sm:text-xs font-bold self-center">${v.category}</span>
                         </div>
                     </div>
                 </div>
@@ -286,7 +347,8 @@
                         'autoplay': 1, 
                         'rel': 0, 
                         'modestbranding': 1,
-                        'origin': window.location.origin
+                        'origin': window.location.origin,
+                        'fs': 1
                     },
                     events: { 
                         'onStateChange': (event) => { if (event.data === YT.PlayerState.ENDED) playNext(); } 
@@ -315,8 +377,12 @@
         }
 
         function goHome() {
+            document.getElementById('search-input').value = '';
+            searchQuery = '';
+            currentCategory = 'ทั้งหมด';
             closeModal();
-            renderVideos('ทั้งหมด');
+            renderCategories();
+            applyFilters();
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
@@ -332,34 +398,16 @@
         function updateFavBtn() {
             const btn = document.getElementById('modal-fav-btn');
             const isFav = favorites.includes(currentVideo.id);
-            btn.className = `kid-button ${isFav ? 'bg-pink-600' : 'bg-pink-400'} text-white px-10 py-3 rounded-full font-bold flex items-center gap-3 text-lg transition-all`;
+            btn.className = `kid-button ${isFav ? 'bg-pink-600' : 'bg-pink-400'} text-white px-6 sm:px-10 py-2 sm:py-3 rounded-full font-bold flex items-center gap-2 sm:gap-3 text-sm sm:text-lg transition-all`;
             btn.querySelector('span').textContent = isFav ? 'หนูชอบเรื่องนี้มากเลย' : 'เก็บไว้ดูอีกนะ';
             lucide.createIcons();
         }
 
         function openFavs() {
-            const favVideos = allVideos.filter(v => favorites.includes(v.id));
-            currentPlaylist = favVideos;
-            const grid = document.getElementById('video-grid');
-            if (favVideos.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-24 text-center"><p class="text-7xl mb-6">🧸</p><p class="text-2xl font-bold text-gray-500">ยังไม่มีเรื่องที่หนูชอบเลยจ๊ะ</p></div>`;
-            } else {
-                renderVideosFromList(favVideos);
-            }
-        }
-
-        function renderVideosFromList(list) {
-            const grid = document.getElementById('video-grid');
-            grid.innerHTML = list.map((v, idx) => `
-                <div class="card-pop cursor-pointer h-full" onclick="playVideoAtIndex(${idx})">
-                    <div class="bg-white border-[6px] border-white rounded-[2.5rem] overflow-hidden shadow-xl h-full flex flex-col">
-                        <div class="relative aspect-video"><img src="${v.thumbnail}" class="w-full h-full object-cover"></div>
-                        <div class="p-5 text-center flex-grow flex flex-col justify-center">
-                            <h3 class="font-bold text-lg text-gray-700 line-clamp-1">${v.title}</h3>
-                        </div>
-                    </div>
-                </div>`).join('');
-            lucide.createIcons();
+            currentCategory = 'รายการโปรด';
+            renderCategories();
+            applyFilters();
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
         window.onload = fetchVideos;
