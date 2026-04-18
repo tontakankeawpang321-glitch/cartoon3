@@ -42,20 +42,27 @@
         }
         .floating { animation: float 3s ease-in-out infinite; }
         
+        /* ปรับปุ่มนำทางให้เล็กลงและดูน่ารัก */
         .nav-btn {
-            background-color: rgba(255, 255, 255, 0.95);
+            background-color: #ffffff;
             border-radius: 9999px;
-            padding: 1rem;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+            padding: 0.5rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             transition: all 0.2s;
             border: 3px solid #FF922B;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         @media (min-width: 640px) {
-            .nav-btn { padding: 1.25rem; border-width: 4px; }
+            .nav-btn { padding: 0.75rem; border-width: 4px; }
         }
         .nav-btn:hover {
-            transform: scale(1.15);
-            background-color: #ffffff;
+            transform: scale(1.1);
+            background-color: #FFF9E1;
+        }
+        .nav-btn:active {
+            transform: scale(0.9);
         }
 
         .search-container {
@@ -145,28 +152,34 @@
         <div class="absolute inset-0 bg-black/85 backdrop-blur-md" onclick="closeModal()"></div>
         <div class="relative bg-white border-[6px] sm:border-[12px] border-yellow-400 rounded-[2rem] sm:rounded-[3.5rem] overflow-hidden w-full max-w-5xl shadow-2xl">
             
+            <!-- ปุ่มปิด -->
             <button onclick="closeModal()" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 sm:p-4 z-[110] shadow-lg hover:scale-110 active:scale-95 transition-transform border-2 sm:border-4 border-white">
                 <i data-lucide="x" class="w-5 h-5 sm:w-8 sm:h-8"></i>
             </button>
             
+            <!-- พื้นที่วิดีโอ -->
             <div class="relative aspect-video bg-black flex items-center justify-center">
                 <div id="player-container" class="w-full h-full"></div>
-                
-                <div class="absolute inset-y-0 left-0 flex items-center pl-1 sm:pl-6 pointer-events-none">
-                    <button id="prev-btn" onclick="playPrev()" class="nav-btn text-orange-kid pointer-events-auto">
-                        <i data-lucide="chevron-left" class="w-6 h-6 sm:w-12 sm:h-12 stroke-[3px]"></i>
-                    </button>
-                </div>
-                <div class="absolute inset-y-0 right-0 flex items-center pr-1 sm:pr-6 pointer-events-none">
-                    <button id="next-btn" onclick="playNext()" class="nav-btn text-orange-kid pointer-events-auto">
-                        <i data-lucide="chevron-right" class="w-6 h-6 sm:w-12 sm:h-12 stroke-[3px]"></i>
-                    </button>
-                </div>
             </div>
             
-            <div class="p-4 sm:p-8 bg-white text-center">
-                <h2 id="modal-title" class="text-lg sm:text-3xl font-bold text-orange-kid mb-2 sm:mb-4 line-clamp-1 px-8 sm:px-12">ชื่อการ์ตูน</h2>
-                <div class="flex justify-center">
+            <!-- ส่วนข้อมูลและปุ่มควบคุมด้านล่าง (ไม่บังวิดีโอ) -->
+            <div class="p-4 sm:p-8 bg-white text-center relative">
+                <!-- ปุ่ม ย้อนกลับ / ถัดไป ย้ายมาไว้ด้านข้างชื่อเรื่องเพื่อไม่ให้บังวิดีโอ -->
+                <div class="absolute left-4 top-1/2 -translate-y-1/2">
+                    <button id="prev-btn" onclick="playPrev()" class="nav-btn text-orange-kid">
+                        <i data-lucide="chevron-left" class="w-5 h-5 sm:w-8 sm:h-8 stroke-[3px]"></i>
+                    </button>
+                </div>
+                
+                <h2 id="modal-title" class="text-base sm:text-2xl font-bold text-orange-kid mb-4 line-clamp-1 px-12 sm:px-16">ชื่อการ์ตูน</h2>
+                
+                <div class="absolute right-4 top-1/2 -translate-y-1/2">
+                    <button id="next-btn" onclick="playNext()" class="nav-btn text-orange-kid">
+                        <i data-lucide="chevron-right" class="w-5 h-5 sm:w-8 sm:h-8 stroke-[3px]"></i>
+                    </button>
+                </div>
+
+                <div class="flex justify-center mt-2">
                     <button id="modal-fav-btn" onclick="toggleFavoriteCurrent()" class="kid-button bg-pink-400 text-white px-6 sm:px-10 py-2 sm:py-3 rounded-full font-bold flex items-center gap-2 sm:gap-3 text-sm sm:text-lg transition-all">
                         <i data-lucide="heart" class="w-5 h-5 sm:w-7 sm:h-7"></i>
                         <span>เก็บไว้ดูอีกนะ</span>
