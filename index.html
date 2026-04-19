@@ -16,11 +16,9 @@
 
         .kid-button {
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 6px 0 #E2C33D;
         }
         .kid-button:active {
-            transform: translateY(4px);
-            box-shadow: 0 2px 0 #E2C33D;
+            transform: scale(0.9);
         }
 
         .card-pop {
@@ -42,28 +40,13 @@
         }
         .floating { animation: float 3s ease-in-out infinite; }
         
-        /* ปรับปุ่มนำทางให้เล็กลงและดูน่ารัก */
-        .nav-btn {
-            background-color: #ffffff;
-            border-radius: 9999px;
-            padding: 0.5rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            transition: all 0.2s;
-            border: 3px solid #FF922B;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* สไตล์ Sidebar ด้านซ้าย (ปรับจากของเดิมที่อยู่ขวา) */
+        #sidebar {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 150;
         }
-        @media (min-width: 640px) {
-            .nav-btn { padding: 0.75rem; border-width: 4px; }
-        }
-        .nav-btn:hover {
-            transform: scale(1.1);
-            background-color: #FFF9E1;
-        }
-        .nav-btn:active {
-            transform: scale(0.9);
-        }
+        .sidebar-open { transform: translateX(0); }
+        .sidebar-closed { transform: translateX(-100%); } /* สไลด์ไปทางซ้าย */
 
         .search-container {
             position: relative;
@@ -82,109 +65,162 @@
         @media (min-width: 640px) {
             .search-input { padding: 12px 20px 12px 50px; border-width: 4px; font-size: 1.1rem; }
         }
-        .search-input:focus {
-            border-color: #FF922B;
-            box-shadow: 0 0 15px rgba(255, 146, 43, 0.2);
+
+        /* ปุ่มเปลี่ยนหน้า */
+        .page-btn {
+            background-color: #ffffff;
+            border: 3px solid #FDE047;
+            border-radius: 9999px;
+            padding: 0.75rem 1.5rem;
+            font-weight: bold;
+            color: #FF922B;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .page-btn:hover:not(:disabled) {
+            background-color: #FDE047;
+            color: white;
+            transform: scale(1.05);
+        }
+        .page-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* สไตล์ไอคอนหมวดหมู่ใน Sidebar */
+        .cat-item-side {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            width: 100%;
+            border-radius: 1rem;
+            transition: all 0.2s;
+            margin-bottom: 0.5rem;
+        }
+        .cat-item-side.active {
+            background-color: #FF922B;
+            color: white;
         }
     </style>
 </head>
 <body class="pb-24">
 
-    <!-- พื้นหลังลายจุด -->
+    <!-- พื้นหลัง -->
     <div class="fixed inset-0 z-[-1] opacity-20 pointer-events-none" 
          style="background-image: radial-gradient(#FF922B 1px, transparent 1px); background-size: 30px 30px;">
     </div>
 
-    <!-- ส่วนหัว -->
+    <!-- หัวเว็บ (ย้ายปุ่มเมนูมาไว้ซ้ายสุด) -->
     <header class="bg-white border-b-4 border-yellow-400 p-4 sticky top-0 z-50 shadow-sm">
-        <div class="max-w-7xl mx-auto flex flex-col items-center gap-3 sm:gap-4">
-            <h1 class="text-2xl sm:text-4xl font-bold text-orange-kid flex items-center gap-2 sm:gap-3 cursor-pointer" onclick="goHome()">
-                <span class="text-3xl sm:text-5xl floating">🌟</span>
-                ดินแดนการ์ตูนหรรษา
-                <span class="text-3xl sm:text-5xl floating" style="animation-delay: 0.5s;">🧸</span>
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+            <!-- ย้ายปุ่มมาตรงนี้ -->
+            <button onclick="toggleSidebar()" class="kid-button bg-yellow-400 text-white p-2 rounded-2xl border-b-4 border-yellow-600 order-first">
+                <i data-lucide="menu" class="w-6 h-6 sm:w-8 sm:h-8"></i>
+            </button>
+
+            <h1 class="text-xl sm:text-3xl font-bold text-orange-kid flex items-center gap-2 cursor-pointer" onclick="goHome()">
+                <span class="text-2xl sm:text-4xl floating">🌟</span>
+                <span class="hidden sm:inline">ดินแดนการ์ตูนหรรษา</span>
+                <span class="sm:hidden">Kiddo Land</span>
             </h1>
             
-            <!-- ช่องค้นหา -->
-            <div class="search-container">
-                <i data-lucide="search" class="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-orange-400 w-5 h-5 sm:w-6 sm:h-6"></i>
-                <input type="text" id="search-input" placeholder="ค้นหาการ์ตูนที่หนูชอบ..." class="search-input" oninput="handleSearch()">
+            <div class="search-container flex-grow max-w-[300px] sm:max-w-[500px]">
+                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400 w-5 h-5"></i>
+                <input type="text" id="search-input" placeholder="ค้นหาการ์ตูน..." class="search-input" oninput="handleSearch()">
             </div>
         </div>
     </header>
 
-    <!-- คอนเทนต์หลัก -->
+    <!-- Sidebar หมวดหมู่ด้านซ้าย -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-[140] hidden" onclick="toggleSidebar()"></div>
+    <div id="sidebar" class="fixed top-0 left-0 h-full w-64 sm:w-80 bg-white border-r-8 border-yellow-400 z-[150] sidebar-closed overflow-y-auto p-6 flex flex-col">
+        <div class="flex items-center justify-between mb-8">
+            <h2 class="text-2xl font-bold text-orange-kid">เลือกหมวดหมู่</h2>
+            <button onclick="toggleSidebar()" class="p-2 hover:bg-gray-100 rounded-full">
+                <i data-lucide="x" class="w-8 h-8 text-gray-400"></i>
+            </button>
+        </div>
+        <div id="category-list-side" class="flex flex-col">
+            <!-- สร้างด้วย JS -->
+        </div>
+    </div>
+
+    <!-- เนื้อหาหลัก -->
     <main class="max-w-7xl mx-auto px-2 sm:px-4 pt-4 sm:pt-6">
         
-        <!-- หมวดหมู่ -->
-        <div id="category-bar" class="flex overflow-x-auto gap-2 sm:gap-3 py-2 sm:py-4 hide-scrollbar justify-start sm:justify-center mb-2 sm:mb-4">
-            <!-- สร้างด้วย JS -->
+        <!-- ข้อมูลสถานะหมวดหมู่ -->
+        <div class="flex items-center gap-2 mb-4 px-2">
+            <span id="current-cat-display" class="bg-orange-100 text-orange-600 px-4 py-1 rounded-full text-sm font-bold uppercase">หมวดหมู่: ทั้งหมด</span>
+            <span id="result-count" class="text-gray-400 text-xs sm:text-sm">กำลังโหลด...</span>
         </div>
 
         <!-- รายการวิดีโอ (2 คอลัมน์บนมือถือ, 4 คอลัมน์บนหน้าจอใหญ่) -->
-        <div id="video-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-6 mt-2 sm:mt-4">
+        <div id="video-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
             <!-- สร้างด้วย JS -->
+        </div>
+
+        <!-- ปุ่มเปลี่ยนหน้า (Pagination) -->
+        <div id="pagination-controls" class="flex items-center justify-center gap-4 mt-12 mb-8">
+            <button id="prev-page" onclick="changePage(-1)" class="page-btn">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                <span>ย้อนกลับ</span>
+            </button>
+            <span id="page-info" class="font-bold text-orange-kid text-lg">หน้า 1 / 1</span>
+            <button id="next-page" onclick="changePage(1)" class="page-btn">
+                <span>ถัดไป</span>
+                <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            </button>
         </div>
 
         <div id="loader" class="flex flex-col items-center justify-center py-20 text-orange-kid">
             <div class="w-12 h-12 sm:w-16 sm:h-16 border-4 sm:border-8 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
-            <p class="mt-4 font-bold text-lg sm:text-xl">กำลังหาการ์ตูนสนุกๆ มาให้หนูนะ...</p>
+            <p class="mt-4 font-bold text-lg sm:text-xl">กำลังหาการ์ตูนสนุกๆ นะ...</p>
         </div>
     </main>
 
     <!-- เมนูด้านล่าง -->
     <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[95%] max-w-md bg-white border-4 border-yellow-400 rounded-full shadow-2xl z-50 flex justify-around p-1 sm:p-2">
-        <button onclick="goHome()" class="flex flex-col items-center p-2 text-orange-kid hover:bg-yellow-50 rounded-full transition-all flex-1">
-            <i data-lucide="home" class="w-6 h-6 sm:w-8 sm:h-8"></i>
-            <span class="text-[10px] sm:text-xs font-bold">บ้านของหนู</span>
+        <button onclick="goHome()" class="flex flex-col items-center p-2 text-orange-kid hover:bg-yellow-50 rounded-full flex-1">
+            <i data-lucide="home" class="w-6 h-6"></i>
+            <span class="text-[10px] font-bold">บ้านของหนู</span>
         </button>
-        <button onclick="openFavs()" class="flex flex-col items-center p-2 text-pink-500 hover:bg-pink-50 rounded-full transition-all flex-1">
-            <i data-lucide="heart" class="w-6 h-6 sm:w-8 sm:h-8"></i>
-            <span class="text-[10px] sm:text-xs font-bold">ที่หนูชอบ</span>
+        <button onclick="openFavsSide()" class="flex flex-col items-center p-2 text-pink-500 hover:bg-pink-50 rounded-full flex-1">
+            <i data-lucide="heart" class="w-6 h-6"></i>
+            <span class="text-[10px] font-bold">ที่หนูชอบ</span>
         </button>
-        <button onclick="window.location.reload()" class="flex flex-col items-center p-2 text-blue-500 hover:bg-blue-50 rounded-full transition-all flex-1">
-            <i data-lucide="refresh-cw" class="w-6 h-6 sm:w-8 sm:h-8"></i>
-            <span class="text-[10px] sm:text-xs font-bold">ดูใหม่</span>
+        <button onclick="window.location.reload()" class="flex flex-col items-center p-2 text-blue-500 hover:bg-blue-50 rounded-full flex-1">
+            <i data-lucide="refresh-cw" class="w-6 h-6"></i>
+            <span class="text-[10px] font-bold">ดูใหม่</span>
         </button>
     </nav>
 
-    <!-- Modal เครื่องเล่นการ์ตูน -->
-    <div id="video-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-1 sm:p-4">
+    <!-- หน้าต่างเล่นการ์ตูน -->
+    <div id="video-modal" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-1 sm:p-4">
         <div class="absolute inset-0 bg-black/85 backdrop-blur-md" onclick="closeModal()"></div>
         <div class="relative bg-white border-[6px] sm:border-[12px] border-yellow-400 rounded-[2rem] sm:rounded-[3.5rem] overflow-hidden w-full max-w-5xl shadow-2xl">
-            
-            <!-- ปุ่มปิด -->
-            <button onclick="closeModal()" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 sm:p-4 z-[110] shadow-lg hover:scale-110 active:scale-95 transition-transform border-2 sm:border-4 border-white">
-                <i data-lucide="x" class="w-5 h-5 sm:w-8 sm:h-8"></i>
+            <button onclick="closeModal()" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 z-[210] border-2 border-white shadow-lg">
+                <i data-lucide="x" class="w-6 h-6 sm:w-8 sm:h-8"></i>
             </button>
-            
-            <!-- พื้นที่วิดีโอ -->
             <div class="relative aspect-video bg-black flex items-center justify-center">
                 <div id="player-container" class="w-full h-full"></div>
             </div>
-            
-            <!-- ส่วนข้อมูลและปุ่มควบคุมด้านล่าง (ไม่บังวิดีโอ) -->
-            <div class="p-4 sm:p-8 bg-white text-center relative">
-                <!-- ปุ่ม ย้อนกลับ / ถัดไป ย้ายมาไว้ด้านข้างชื่อเรื่องเพื่อไม่ให้บังวิดีโอ -->
-                <div class="absolute left-4 top-1/2 -translate-y-1/2">
-                    <button id="prev-btn" onclick="playPrev()" class="nav-btn text-orange-kid">
-                        <i data-lucide="chevron-left" class="w-5 h-5 sm:w-8 sm:h-8 stroke-[3px]"></i>
+            <div class="p-4 sm:p-8 bg-white text-center relative flex flex-col items-center gap-4">
+                <div class="flex items-center justify-between w-full px-2 sm:px-8">
+                    <button id="modal-prev" onclick="playPrev()" class="p-3 bg-white border-4 border-orange-400 rounded-full text-orange-400 hover:bg-orange-50 active:scale-90 transition-all">
+                        <i data-lucide="chevron-left" class="w-6 h-6 sm:w-10 sm:h-10"></i>
+                    </button>
+                    <h2 id="modal-title" class="text-base sm:text-2xl font-bold text-orange-kid line-clamp-1 max-w-[60%]">ชื่อการ์ตูน</h2>
+                    <button id="modal-next" onclick="playNext()" class="p-3 bg-white border-4 border-orange-400 rounded-full text-orange-400 hover:bg-orange-50 active:scale-90 transition-all">
+                        <i data-lucide="chevron-right" class="w-6 h-6 sm:w-10 sm:h-10"></i>
                     </button>
                 </div>
-                
-                <h2 id="modal-title" class="text-base sm:text-2xl font-bold text-orange-kid mb-4 line-clamp-1 px-12 sm:px-16">ชื่อการ์ตูน</h2>
-                
-                <div class="absolute right-4 top-1/2 -translate-y-1/2">
-                    <button id="next-btn" onclick="playNext()" class="nav-btn text-orange-kid">
-                        <i data-lucide="chevron-right" class="w-5 h-5 sm:w-8 sm:h-8 stroke-[3px]"></i>
-                    </button>
-                </div>
-
-                <div class="flex justify-center mt-2">
-                    <button id="modal-fav-btn" onclick="toggleFavoriteCurrent()" class="kid-button bg-pink-400 text-white px-6 sm:px-10 py-2 sm:py-3 rounded-full font-bold flex items-center gap-2 sm:gap-3 text-sm sm:text-lg transition-all">
-                        <i data-lucide="heart" class="w-5 h-5 sm:w-7 sm:h-7"></i>
-                        <span>เก็บไว้ดูอีกนะ</span>
-                    </button>
-                </div>
+                <button id="modal-fav-btn" onclick="toggleFavoriteCurrent()" class="kid-button bg-pink-400 text-white px-8 py-2 rounded-full font-bold flex items-center gap-2">
+                    <i data-lucide="heart" class="w-6 h-6"></i>
+                    <span>ชอบเรื่องนี้จัง</span>
+                </button>
             </div>
         </div>
     </div>
@@ -195,6 +231,7 @@
         const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ9QPKOt_ptK8_1ykIQOV--jL4yGlpd6NTxBt84w_NpTswUyBKbUZoMA8r2fsAXJ8NP1XZSlUO5WJ_T/pub?output=csv";
 
         let allVideos = [];
+        let filteredVideos = [];
         let currentPlaylist = [];
         let currentIndex = -1;
         let favorites = JSON.parse(localStorage.getItem('kiddo_favs') || '[]');
@@ -202,8 +239,25 @@
         let player = null;
         let currentCategory = 'ทั้งหมด';
         let searchQuery = '';
+        
+        // Pagination
+        let currentPage = 1;
+        const itemsPerPage = 20;
 
         lucide.createIcons();
+
+        function getIconForCategory(cat) {
+            const map = {
+                'ทั้งหมด': 'layout-grid',
+                'ของเล่นเด็ก': 'toy-brick',
+                'ของเล่น': 'toy-brick',
+                'เพลง': 'music',
+                'ความรู้': 'lightbulb',
+                'รายการโปรด': 'star',
+                'แนะนำ': 'heart'
+            };
+            return map[cat] || 'play-circle';
+        }
 
         function extractID(url) {
             if (!url) return null;
@@ -217,14 +271,11 @@
             let inQuotes = false;
             for (let i = 0; i < line.length; i++) {
                 const char = line[i];
-                if (char === '"') {
-                    inQuotes = !inQuotes;
-                } else if (char === ',' && !inQuotes) {
+                if (char === '"') inQuotes = !inQuotes;
+                else if (char === ',' && !inQuotes) {
                     result.push(current.trim());
                     current = '';
-                } else {
-                    current += char;
-                }
+                } else current += char;
             }
             result.push(current.trim());
             return result;
@@ -233,98 +284,107 @@
         async function fetchVideos() {
             try {
                 const response = await fetch(CSV_URL);
-                if (!response.ok) throw new Error('Fetch failed');
                 const data = await response.text();
-                
                 const rows = data.split(/\r?\n/).filter(row => row.trim() !== "");
-                const dataRows = rows.slice(1);
-
-                allVideos = dataRows.map((row, index) => {
+                allVideos = rows.slice(1).map((row, index) => {
                     const cols = parseCSVLine(row);
-                    const category = (cols[0] || 'ทั่วไป').replace(/^"|"$/g, '');
-                    const title = (cols[1] || 'การ์ตูนสนุกๆ').replace(/^"|"$/g, '');
-                    const url = (cols[2] || '').replace(/^"|"$/g, '');
-                    const videoId = extractID(url);
-
+                    const videoId = extractID(cols[2] || '');
                     return {
                         id: 'v_' + index,
-                        category,
-                        title,
+                        category: (cols[0] || 'ทั่วไป').replace(/^"|"$/g, ''),
+                        title: (cols[1] || 'การ์ตูนสนุกๆ').replace(/^"|"$/g, ''),
                         videoId,
                         thumbnail: videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : null
                     };
                 }).filter(v => v.videoId !== null);
-
                 document.getElementById('loader').style.display = 'none';
-                
-                if (allVideos.length === 0) {
-                    document.getElementById('video-grid').innerHTML = '<div class="col-span-full py-20 text-center text-gray-400">แง! ไม่พบข้อมูลคลิปในสเปรดชีตจ๊ะ</div>';
-                }
-
-                renderCategories();
+                renderCategoriesSide();
                 applyFilters();
             } catch (error) {
                 console.error("Error:", error);
-                document.getElementById('loader').innerHTML = `<p class="text-red-500 font-bold">แง! โหลดข้อมูลไม่ได้ ลองตรวจสอบการ Publish CSV นะจ๊ะ</p>`;
+                document.getElementById('loader').innerHTML = `<p class="text-red-500 font-bold">โหลดข้อมูลไม่ได้จ้า ลองรีเฟรชใหม่นะ</p>`;
             }
         }
 
-        function renderCategories() {
-            const cats = ['ทั้งหมด', ...new Set(allVideos.map(v => v.category))];
-            const bar = document.getElementById('category-bar');
-            bar.innerHTML = cats.map(cat => `
-                <button onclick="setCategory('${cat}')" 
-                        class="category-btn kid-button ${currentCategory === cat ? 'bg-orange-400 text-white' : 'bg-white text-orange-kid'} border-2 sm:border-4 border-yellow-300 px-4 sm:px-6 py-1 sm:py-2 rounded-full font-bold whitespace-nowrap text-sm sm:text-base hover:bg-yellow-100 transition-colors">
-                    ${cat}
-                </button>
-            `).join('');
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (sidebar.classList.contains('sidebar-closed')) {
+                sidebar.classList.remove('sidebar-closed');
+                sidebar.classList.add('sidebar-open');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.remove('sidebar-open');
+                sidebar.classList.add('sidebar-closed');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function renderCategoriesSide() {
+            const cats = ['ทั้งหมด', ...new Set(allVideos.map(v => v.category)), 'รายการโปรด'];
+            const container = document.getElementById('category-list-side');
+            container.innerHTML = cats.map(cat => {
+                const icon = getIconForCategory(cat);
+                const isActive = currentCategory === cat;
+                return `
+                    <button onclick="setCategory('${cat}')" class="cat-item-side ${isActive ? 'active' : 'hover:bg-yellow-50 text-gray-600'}">
+                        <i data-lucide="${icon}" class="w-6 h-6"></i>
+                        <span class="font-bold">${cat}</span>
+                    </button>
+                `;
+            }).join('');
+            lucide.createIcons();
         }
 
         function setCategory(cat) {
             currentCategory = cat;
-            renderCategories();
+            currentPage = 1;
+            document.getElementById('current-cat-display').textContent = `หมวดหมู่: ${cat}`;
+            renderCategoriesSide();
             applyFilters();
+            toggleSidebar();
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
         function handleSearch() {
             searchQuery = document.getElementById('search-input').value.toLowerCase();
+            currentPage = 1;
             applyFilters();
         }
 
         function applyFilters() {
-            let filtered = allVideos;
-            
+            filteredVideos = allVideos;
             if (currentCategory !== 'ทั้งหมด' && currentCategory !== 'รายการโปรด') {
-                filtered = filtered.filter(v => v.category === currentCategory);
+                filteredVideos = filteredVideos.filter(v => v.category === currentCategory);
             } else if (currentCategory === 'รายการโปรด') {
-                filtered = allVideos.filter(v => favorites.includes(v.id));
+                filteredVideos = allVideos.filter(v => favorites.includes(v.id));
             }
-            
             if (searchQuery) {
-                filtered = filtered.filter(v => 
-                    v.title.toLowerCase().includes(searchQuery) || 
-                    v.category.toLowerCase().includes(searchQuery)
-                );
+                filteredVideos = filteredVideos.filter(v => v.title.toLowerCase().includes(searchQuery));
             }
-            
-            renderGrid(filtered);
+            document.getElementById('result-count').textContent = `เจอการ์ตูน ${filteredVideos.length} เรื่อง`;
+            renderGrid();
         }
 
-        function renderGrid(list) {
+        function renderGrid() {
             const grid = document.getElementById('video-grid');
-            currentPlaylist = list;
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const pageData = filteredVideos.slice(startIndex, startIndex + itemsPerPage);
+            currentPlaylist = pageData;
 
-            if (list.length === 0) {
-                grid.innerHTML = '<div class="col-span-full py-20 text-center text-gray-400 font-bold text-lg sm:text-xl">ไม่พบการ์ตูนที่หนูหาเลยจ๊ะ ลองหาคำอื่นดูนะ! 🧸</div>';
+            if (filteredVideos.length === 0) {
+                grid.innerHTML = '<div class="col-span-full py-20 text-center text-gray-400 font-bold text-lg sm:text-xl">หาไม่เจอเลยจ๊ะ ลองหาเรื่องอื่นนะ! 🧸</div>';
+                document.getElementById('pagination-controls').style.display = 'none';
                 return;
             }
 
-            grid.innerHTML = list.map((v, idx) => `
+            document.getElementById('pagination-controls').style.display = 'flex';
+            grid.innerHTML = pageData.map((v, idx) => `
                 <div class="card-pop cursor-pointer h-full" onclick="playVideoAtIndex(${idx})">
-                    <div class="bg-white border-[4px] sm:border-[6px] border-white rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden shadow-lg sm:shadow-xl h-full flex flex-col transition-all hover:shadow-2xl">
+                    <div class="bg-white border-[4px] sm:border-[6px] border-white rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden shadow-lg h-full flex flex-col transition-all hover:shadow-2xl">
                         <div class="relative aspect-video bg-gray-100">
-                            <img src="${v.thumbnail}" class="w-full h-full object-cover" loading="lazy" onerror="this.src='https://placehold.co/400x225?text=No+Preview'">
-                            <div class="absolute inset-0 flex items-center justify-center bg-black/5 sm:opacity-0 sm:hover:opacity-100 transition-opacity">
+                            <img src="${v.thumbnail}" class="w-full h-full object-cover" loading="lazy">
+                            <div class="absolute inset-0 flex items-center justify-center sm:opacity-0 sm:hover:opacity-100 transition-opacity">
                                 <div class="bg-white/90 rounded-full p-2 sm:p-4 shadow-lg">
                                     <i data-lucide="play" class="w-5 h-5 sm:w-8 sm:h-8 text-orange-kid fill-current"></i>
                                 </div>
@@ -337,39 +397,39 @@
                     </div>
                 </div>
             `).join('');
+            
+            updatePaginationInfo();
             lucide.createIcons();
+        }
+
+        function updatePaginationInfo() {
+            const totalPages = Math.ceil(filteredVideos.length / itemsPerPage) || 1;
+            document.getElementById('page-info').textContent = `หน้า ${currentPage} / ${totalPages}`;
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = currentPage === totalPages;
+        }
+
+        function changePage(delta) {
+            currentPage += delta;
+            renderGrid();
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
         function playVideoAtIndex(index) {
             if (index < 0 || index >= currentPlaylist.length) return;
-            
             currentIndex = index;
             const video = currentPlaylist[currentIndex];
             currentVideo = video;
-
             document.getElementById('modal-title').textContent = video.title;
             document.getElementById('video-modal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
-
             if (!player) {
                 player = new YT.Player('player-container', {
-                    height: '100%',
-                    width: '100%',
-                    videoId: video.videoId,
-                    playerVars: { 
-                        'autoplay': 1, 
-                        'rel': 0, 
-                        'modestbranding': 1,
-                        'origin': window.location.origin,
-                        'fs': 1
-                    },
-                    events: { 
-                        'onStateChange': (event) => { if (event.data === YT.PlayerState.ENDED) playNext(); } 
-                    }
+                    height: '100%', width: '100%', videoId: video.videoId,
+                    playerVars: { 'autoplay': 1, 'rel': 0, 'modestbranding': 1, 'origin': window.location.origin, 'fs': 1 },
+                    events: { 'onStateChange': (event) => { if (event.data === YT.PlayerState.ENDED) playNext(); } }
                 });
-            } else {
-                player.loadVideoById(video.videoId);
-            }
+            } else player.loadVideoById(video.videoId);
             updateFavBtn();
         }
 
@@ -392,35 +452,27 @@
         function goHome() {
             document.getElementById('search-input').value = '';
             searchQuery = '';
-            currentCategory = 'ทั้งหมด';
-            closeModal();
-            renderCategories();
-            applyFilters();
-            window.scrollTo({top: 0, behavior: 'smooth'});
+            setCategory('ทั้งหมด');
         }
 
         function toggleFavoriteCurrent() {
-            if (!currentVideo) return;
             const idx = favorites.indexOf(currentVideo.id);
             if (idx > -1) favorites.splice(idx, 1);
             else favorites.push(currentVideo.id);
             localStorage.setItem('kiddo_favs', JSON.stringify(favorites));
             updateFavBtn();
+            applyFilters();
         }
 
         function updateFavBtn() {
-            const btn = document.getElementById('modal-fav-btn');
             const isFav = favorites.includes(currentVideo.id);
-            btn.className = `kid-button ${isFav ? 'bg-pink-600' : 'bg-pink-400'} text-white px-6 sm:px-10 py-2 sm:py-3 rounded-full font-bold flex items-center gap-2 sm:gap-3 text-sm sm:text-lg transition-all`;
-            btn.querySelector('span').textContent = isFav ? 'หนูชอบเรื่องนี้มากเลย' : 'เก็บไว้ดูอีกนะ';
-            lucide.createIcons();
+            const btn = document.getElementById('modal-fav-btn');
+            btn.className = `kid-button ${isFav ? 'bg-pink-600' : 'bg-pink-400'} text-white px-8 py-2 rounded-full font-bold flex items-center gap-2`;
+            btn.querySelector('span').textContent = isFav ? 'หนูชอบเรื่องนี้มาก' : 'ชอบเรื่องนี้จัง';
         }
 
-        function openFavs() {
-            currentCategory = 'รายการโปรด';
-            renderCategories();
-            applyFilters();
-            window.scrollTo({top: 0, behavior: 'smooth'});
+        function openFavsSide() {
+            setCategory('รายการโปรด');
         }
 
         window.onload = fetchVideos;
