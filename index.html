@@ -40,13 +40,13 @@
         }
         .floating { animation: float 3s ease-in-out infinite; }
         
-        /* สไตล์ Sidebar ด้านซ้าย (ปรับจากของเดิมที่อยู่ขวา) */
+        /* สไตล์ Sidebar ด้านซ้าย */
         #sidebar {
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 150;
         }
         .sidebar-open { transform: translateX(0); }
-        .sidebar-closed { transform: translateX(-100%); } /* สไลด์ไปทางซ้าย */
+        .sidebar-closed { transform: translateX(-100%); }
 
         .search-container {
             position: relative;
@@ -104,6 +104,14 @@
             background-color: #FF922B;
             color: white;
         }
+
+        /* Overlay โปร่งใสสำหรับตรวจจับ Touch Swipe บนเครื่องเล่น */
+        .swipe-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 50; /* อยู่เหนือ YouTube เล็กน้อยเพื่อจับ Touch แต่ยังยอมให้กด UI ของ YouTube ได้ถ้าจำเป็น */
+            pointer-events: auto;
+        }
     </style>
 </head>
 <body class="pb-24">
@@ -113,10 +121,9 @@
          style="background-image: radial-gradient(#FF922B 1px, transparent 1px); background-size: 30px 30px;">
     </div>
 
-    <!-- หัวเว็บ (ย้ายปุ่มเมนูมาไว้ซ้ายสุด) -->
+    <!-- หัวเว็บ -->
     <header class="bg-white border-b-4 border-yellow-400 p-4 sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
-            <!-- ย้ายปุ่มมาตรงนี้ -->
             <button onclick="toggleSidebar()" class="kid-button bg-yellow-400 text-white p-2 rounded-2xl border-b-4 border-yellow-600 order-first">
                 <i data-lucide="menu" class="w-6 h-6 sm:w-8 sm:h-8"></i>
             </button>
@@ -151,18 +158,15 @@
     <!-- เนื้อหาหลัก -->
     <main class="max-w-7xl mx-auto px-2 sm:px-4 pt-4 sm:pt-6">
         
-        <!-- ข้อมูลสถานะหมวดหมู่ -->
         <div class="flex items-center gap-2 mb-4 px-2">
             <span id="current-cat-display" class="bg-orange-100 text-orange-600 px-4 py-1 rounded-full text-sm font-bold uppercase">หมวดหมู่: ทั้งหมด</span>
             <span id="result-count" class="text-gray-400 text-xs sm:text-sm">กำลังโหลด...</span>
         </div>
 
-        <!-- รายการวิดีโอ (2 คอลัมน์บนมือถือ, 4 คอลัมน์บนหน้าจอใหญ่) -->
         <div id="video-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
             <!-- สร้างด้วย JS -->
         </div>
 
-        <!-- ปุ่มเปลี่ยนหน้า (Pagination) -->
         <div id="pagination-controls" class="flex items-center justify-center gap-4 mt-12 mb-8">
             <button id="prev-page" onclick="changePage(-1)" class="page-btn">
                 <i data-lucide="arrow-left" class="w-5 h-5"></i>
@@ -197,23 +201,30 @@
         </button>
     </nav>
 
-    <!-- หน้าต่างเล่นการ์ตูน -->
+    <!-- หน้าต่างเล่นการ์ตูน (รองรับ Swipe) -->
     <div id="video-modal" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-1 sm:p-4">
         <div class="absolute inset-0 bg-black/85 backdrop-blur-md" onclick="closeModal()"></div>
-        <div class="relative bg-white border-[6px] sm:border-[12px] border-yellow-400 rounded-[2rem] sm:rounded-[3.5rem] overflow-hidden w-full max-w-5xl shadow-2xl">
+        <div id="modal-container" class="relative bg-white border-[6px] sm:border-[12px] border-yellow-400 rounded-[2rem] sm:rounded-[3.5rem] overflow-hidden w-full max-w-5xl shadow-2xl">
             <button onclick="closeModal()" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 z-[210] border-2 border-white shadow-lg">
                 <i data-lucide="x" class="w-6 h-6 sm:w-8 sm:h-8"></i>
             </button>
-            <div class="relative aspect-video bg-black flex items-center justify-center">
+            
+            <div class="relative aspect-video bg-black flex items-center justify-center" id="swipe-area">
+                <!-- Overlay สำหรับตรวจจับการปัดนิ้ว -->
+                <div class="swipe-overlay"></div>
                 <div id="player-container" class="w-full h-full"></div>
             </div>
+
             <div class="p-4 sm:p-8 bg-white text-center relative flex flex-col items-center gap-4">
                 <div class="flex items-center justify-between w-full px-2 sm:px-8">
-                    <button id="modal-prev" onclick="playPrev()" class="p-3 bg-white border-4 border-orange-400 rounded-full text-orange-400 hover:bg-orange-50 active:scale-90 transition-all">
+                    <button id="modal-prev" onclick="playPrev()" class="p-3 bg-white border-4 border-orange-400 rounded-full text-orange-400 hover:bg-orange-50 active:scale-90 transition-all z-[210]">
                         <i data-lucide="chevron-left" class="w-6 h-6 sm:w-10 sm:h-10"></i>
                     </button>
-                    <h2 id="modal-title" class="text-base sm:text-2xl font-bold text-orange-kid line-clamp-1 max-w-[60%]">ชื่อการ์ตูน</h2>
-                    <button id="modal-next" onclick="playNext()" class="p-3 bg-white border-4 border-orange-400 rounded-full text-orange-400 hover:bg-orange-50 active:scale-90 transition-all">
+                    <div class="flex flex-col items-center gap-1">
+                        <h2 id="modal-title" class="text-base sm:text-2xl font-bold text-orange-kid line-clamp-1 max-w-[200px] sm:max-w-md uppercase">ชื่อการ์ตูน</h2>
+                        <span class="text-[10px] text-gray-400 sm:hidden">ปัดซ้ายหรือขวาเพื่อเปลี่ยนคลิปได้นะจ๊ะ</span>
+                    </div>
+                    <button id="modal-next" onclick="playNext()" class="p-3 bg-white border-4 border-orange-400 rounded-full text-orange-400 hover:bg-orange-50 active:scale-90 transition-all z-[210]">
                         <i data-lucide="chevron-right" class="w-6 h-6 sm:w-10 sm:h-10"></i>
                     </button>
                 </div>
@@ -243,6 +254,10 @@
         // Pagination
         let currentPage = 1;
         const itemsPerPage = 20;
+
+        // Swipe Variables
+        let touchStartX = 0;
+        let touchEndX = 0;
 
         lucide.createIcons();
 
@@ -473,6 +488,29 @@
 
         function openFavsSide() {
             setCategory('รายการโปรด');
+        }
+
+        // --- เพิ่มระบบ Swipe Gestures ---
+        const swipeArea = document.getElementById('modal-container');
+        
+        swipeArea.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        swipeArea.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            const threshold = 60; // ระยะขั้นต่ำในการปัด (พิกเซล)
+            if (touchStartX - touchEndX > threshold) {
+                // ปัดซ้าย -> เล่นคลิปถัดไป
+                playNext();
+            } else if (touchEndX - touchStartX > threshold) {
+                // ปัดขวา -> เล่นคลิปก่อนหน้า
+                playPrev();
+            }
         }
 
         window.onload = fetchVideos;
